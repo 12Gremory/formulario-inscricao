@@ -1,19 +1,25 @@
 import { Button, FormControlLabel, Switch, TextField } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import validacoesCadastro from "../../Contexto/validacoesCadastro";
+import useErros from "../../Hooks/useErros";
 
-function DadosPessoais({ aoEnviar, validarCPF }) {
+function DadosPessoais({ aoEnviar }) {
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
   const [cpf, setCpf] = useState("");
   const [promocoes, setPromocoes] = useState(true);
   const [novidades, setNovidades] = useState(true);
-  const [erro, setErro] = useState({ cpf: { valido: true, texto: "" } });
+  const validacoes = useContext(validacoesCadastro);
+
+  const [erro, validarCampos, possoEnviar] = useErros(validacoes);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        aoEnviar({ nome, sobrenome, cpf, promocoes, novidades });
+        if (possoEnviar()) {
+          aoEnviar({ nome, sobrenome, cpf, promocoes, novidades });
+        }
       }}
     >
       <TextField
@@ -23,6 +29,7 @@ function DadosPessoais({ aoEnviar, validarCPF }) {
         value={nome}
         id="Nome"
         label="Nome"
+        name="nome"
         variant="outlined"
         fullWidth
         margin="normal"
@@ -34,6 +41,7 @@ function DadosPessoais({ aoEnviar, validarCPF }) {
         value={sobrenome}
         id="Sobrenome"
         label="Sobrenome"
+        name="sobrenome"
         variant="outlined"
         fullWidth
         margin="normal"
@@ -42,19 +50,16 @@ function DadosPessoais({ aoEnviar, validarCPF }) {
         onChange={(e) => {
           setCpf(e.target.value);
         }}
-        onBlur={(e) => {
-          const valido = validarCPF(e.target.value);
-          setErro({
-            cpf: { valido },
-          });
-        }}
+        onBlur={validarCampos}
         error={!erro.cpf.valido}
         helperText={erro.cpf.texto}
         value={cpf}
         id="Cpf"
+        name="cpf"
         label="CPF"
         variant="outlined"
         fullWidth
+        required
         margin="normal"
       />
 
@@ -86,10 +91,10 @@ function DadosPessoais({ aoEnviar, validarCPF }) {
       />
 
       <Button type="submit" variant="contained" color="primary">
-        Cadastrar
+        Próximo
       </Button>
     </form>
   );
 }
 
-export default DadosPessoais
+export default DadosPessoais;
